@@ -153,16 +153,16 @@ func VaultSecretHandler(req router.Request, resp router.Response) error {
 	if vaultsecret.Spec.ReconcileStrategy == "Merge" {
 		secret = mergeSecretData(secret, found)
 
-		logrus.Info("Updating a Secret", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
+		logrus.Infof("Updating a secret: namespace %s, name: %s", secret.Namespace, secret.Name)
 		err = req.Client.Update(req.Ctx, secret)
 		if err != nil {
 			logrus.Error(err, "Could not update secret")
 			updateConditions(req.Ctx, vaultsecret, conditionReasonMergeFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
-		// r.updateConditions(req.Ctx, instance, conditionReasonUpdated, "Secret was updated", metav1.ConditionTrue)
+		updateConditions(req.Ctx, vaultsecret, conditionReasonUpdated, "Secret was updated", metav1.ConditionTrue)
 	} else {
-		logrus.Info("Updating a Secret", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
+		logrus.Infof("Updating a secret: namespace %s, name: %s", secret.Namespace, secret.Name)
 		err = req.Client.Update(req.Ctx, secret)
 		if err != nil {
 			logrus.Error(err, "Could not update secret")

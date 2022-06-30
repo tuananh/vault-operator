@@ -23,7 +23,7 @@ func main() {
 	}
 
 	ctx := signals.SetupSignalHandler()
-	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 	if err := controller.Start(ctx); err != nil {
 		logrus.Fatal(err)
 	}
