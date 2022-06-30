@@ -3,7 +3,6 @@ module github.com/tuananh/vault-operator
 go 1.18
 
 require (
-	cloud.google.com/go v0.102.0
 	cloud.google.com/go/compute v1.7.0
 	cloud.google.com/go/iam v0.3.0
 	github.com/acorn-io/baaah v0.0.0-20220629165638-91ce7be33b5f
@@ -101,7 +100,6 @@ require (
 	github.com/rancher/lasso v0.0.0-20220628160937-749b3397db38 // indirect
 	github.com/rancher/lasso/controller-runtime v0.0.0-20220628160937-749b3397db38 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.7.2 // indirect
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	golang.org/x/oauth2 v0.0.0-20220628200809-02e64fa58f26
