@@ -5,7 +5,6 @@ package controller
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"os"
 	"text/template"
@@ -50,15 +49,15 @@ func VaultSecretHandler(req router.Request, resp router.Response) error {
 		vaultClient, err = vault.CreateClient(vaultsecret.Spec.VaultRole)
 		if err != nil {
 			// Error creating the Vault client - requeue the request.
-			updateConditions(req.Ctx, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
+			updateConditions(req, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
 	} else {
 		logrus.Info("Use shared client to get secret from Vault")
 		if vault.SharedClient == nil {
 			err = fmt.Errorf("shared client not initialized and vaultRole property missing")
-			logrus.Error(err, "Could not get secret from Vault")
-			updateConditions(req.Ctx, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Could not get secret from Vault", err)
+			updateConditions(req, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		} else {
 			vaultClient = vault.SharedClient
@@ -69,22 +68,22 @@ func VaultSecretHandler(req router.Request, resp router.Response) error {
 		data, err = vaultClient.GetSecret(vaultsecret.Spec.SecretEngine, vaultsecret.Spec.Path, vaultsecret.Spec.Keys, vaultsecret.Spec.Version, vaultsecret.Spec.IsBinary, vaultsecret.Spec.VaultNamespace)
 		if err != nil {
 			// Error while getting the secret from Vault - requeue the request.
-			logrus.Error(err, "Could not get secret from vault")
-			updateConditions(req.Ctx, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Could not get secret from vault", err)
+			updateConditions(req, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
 	} else if vaultsecret.Spec.SecretEngine == pkiEngine {
 		if err := ValidatePKI(vaultsecret); err != nil {
-			logrus.Error(err, "Resource validation failed")
-			updateConditions(req.Ctx, vaultsecret, conditionInvalidResource, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Resource validation failed", err)
+			updateConditions(req, vaultsecret, conditionInvalidResource, err.Error(), metav1.ConditionFalse)
 			return err
 		}
 
 		var expiration *time.Time
 		data, expiration, err = vaultClient.GetCertificate(vaultsecret.Spec.Path, vaultsecret.Spec.Role, vaultsecret.Spec.EngineOptions)
 		if err != nil {
-			logrus.Error(err, "Could not get certificate from vault")
-			updateConditions(req.Ctx, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Could not get certificate from vault", err)
+			updateConditions(req, vaultsecret, conditionReasonFetchFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
 
@@ -104,8 +103,8 @@ func VaultSecretHandler(req router.Request, resp router.Response) error {
 	secret, err := newSecretForCR(vaultsecret, data)
 	if err != nil {
 		// Error while creating the Kubernetes secret - requeue the request.
-		logrus.Error(err, "Could not create Kubernetes secret")
-		updateConditions(req.Ctx, vaultsecret, conditionReasonCreateFailed, err.Error(), metav1.ConditionFalse)
+		logrus.Error("Could not create Kubernetes secret", err)
+		updateConditions(req, vaultsecret, conditionReasonCreateFailed, err.Error(), metav1.ConditionFalse)
 		return err
 	}
 
@@ -119,20 +118,20 @@ func VaultSecretHandler(req router.Request, resp router.Response) error {
 	found := &corev1.Secret{}
 	err = req.Client.Get(req.Ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
-		logrus.Info("Creating a new Secret", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
+		logrus.Infof("Creating a new Secret: namespace %s, name %s", secret.Namespace, secret.Name)
 		err = req.Client.Create(req.Ctx, secret)
 		if err != nil {
-			logrus.Error(err, "Could not create secret")
-			updateConditions(req.Ctx, vaultsecret, conditionReasonCreateFailed, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Could not create secret", err)
+			updateConditions(req, vaultsecret, conditionReasonCreateFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
 
 		// Secret created successfully - requeue only if no version is specified
-		updateConditions(req.Ctx, vaultsecret, conditionReasonCreated, "Secret was created", metav1.ConditionTrue)
+		updateConditions(req, vaultsecret, conditionReasonCreated, "Secret was created", metav1.ConditionTrue)
 		return nil
 	} else if err != nil {
-		logrus.Error(err, "Could not create secret")
-		updateConditions(req.Ctx, vaultsecret, conditionReasonCreateFailed, err.Error(), metav1.ConditionFalse)
+		logrus.Error("Could not create secret", err)
+		updateConditions(req, vaultsecret, conditionReasonCreateFailed, err.Error(), metav1.ConditionFalse)
 		return err
 	}
 
@@ -145,20 +144,20 @@ func VaultSecretHandler(req router.Request, resp router.Response) error {
 		logrus.Infof("Updating a secret: namespace %s, name: %s", secret.Namespace, secret.Name)
 		err = req.Client.Update(req.Ctx, secret)
 		if err != nil {
-			logrus.Error(err, "Could not update secret")
-			updateConditions(req.Ctx, vaultsecret, conditionReasonMergeFailed, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Could not update secret", err)
+			updateConditions(req, vaultsecret, conditionReasonMergeFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
-		updateConditions(req.Ctx, vaultsecret, conditionReasonUpdated, "Secret was updated", metav1.ConditionTrue)
+		updateConditions(req, vaultsecret, conditionReasonUpdated, "Secret was updated", metav1.ConditionTrue)
 	} else {
 		logrus.Infof("Updating a secret: namespace %s, name: %s", secret.Namespace, secret.Name)
 		err = req.Client.Update(req.Ctx, secret)
 		if err != nil {
-			logrus.Error(err, "Could not update secret")
-			updateConditions(req.Ctx, vaultsecret, conditionReasonUpdateFailed, err.Error(), metav1.ConditionFalse)
+			logrus.Error("Could not update secret", err)
+			updateConditions(req, vaultsecret, conditionReasonUpdateFailed, err.Error(), metav1.ConditionFalse)
 			return err
 		}
-		updateConditions(req.Ctx, vaultsecret, conditionReasonUpdated, "Secret was updated", metav1.ConditionTrue)
+		updateConditions(req, vaultsecret, conditionReasonUpdated, "Secret was updated", metav1.ConditionTrue)
 	}
 
 	// Secret updated successfully - requeue only if no version is specified
@@ -274,7 +273,7 @@ func mergeSecretData(new, found *corev1.Secret) *corev1.Secret {
 	return new
 }
 
-func updateConditions(ctx context.Context, instance *v1alpha1.VaultSecret, reason, message string, status metav1.ConditionStatus) {
+func updateConditions(req router.Request, instance *v1alpha1.VaultSecret, reason, message string, status metav1.ConditionStatus) {
 	instance.Status.Conditions = []metav1.Condition{{
 		Type:               conditionTypeSecretCreated,
 		Status:             status,
@@ -284,8 +283,8 @@ func updateConditions(ctx context.Context, instance *v1alpha1.VaultSecret, reaso
 		Message:            message,
 	}}
 
-	// err := r.Status().Update(ctx, instance)
-	// if err != nil {
-	// 	log.Error(err, "Could not update status")
-	// }
+	err := req.Client.Status().Update(req.Ctx, instance)
+	if err != nil {
+		logrus.Error("Could not update status", err)
+	}
 }
