@@ -51,16 +51,12 @@ func UpdateIngressWithAnnotation(req router.Request, resp router.Response) error
 
 func VaultSecretHandler(req router.Request, resp router.Response) error {
 	vaultsecret := req.Object.(*v1alpha1.VaultSecret)
-	logrus.Debugf("VaultSecretHandler %v", vaultsecret)
 
 	var data map[string][]byte
-
 	var err error
 	var vaultClient *vault.Client
 
-	logrus.Debugf("vault role %v", vaultsecret.Spec)
 	if vaultsecret.Spec.VaultRole != "" {
-		// logrus.WithValues("vaultRole", instance.Spec.VaultRole).Info("Create client to get secret from Vault")
 		logrus.Info("Create client to get secret from Vault")
 		vaultClient, err = vault.CreateClient(vaultsecret.Spec.VaultRole)
 		if err != nil {
