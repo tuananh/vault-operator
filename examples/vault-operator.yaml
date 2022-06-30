@@ -5,13 +5,26 @@ metadata:
   name: vault-operator-sa
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-operator-clusterrole
+rules:
+- apiGroups: ["tuananh.net"]
+  resources: ["customresourcedefinitions"]
+  resourceNames: ["vaultsecrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: controll-demo-sa-cluster-admin-binding
 roleRef:
   apiGroup: ""
   kind: ClusterRole
-  name: cluster-admin
+  name: vault-operator-clusterrole
 subjects:
   - apiGroup: ""
     kind: ServiceAccount
