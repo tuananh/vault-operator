@@ -17,7 +17,6 @@ import (
 	"github.com/tuananh/vault-operator/pkg/apis/v1alpha1"
 	"github.com/tuananh/vault-operator/pkg/vault"
 	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -38,16 +37,6 @@ const (
 	kvEngine  = "kv"
 	pkiEngine = "pki"
 )
-
-func UpdateIngressWithAnnotation(req router.Request, resp router.Response) error {
-	ingress := req.Object.(*networkingv1.Ingress)
-	if ingress.Annotations == nil {
-		ingress.Annotations = map[string]string{}
-	}
-	ingress.Annotations["hello"] = "controller"
-
-	return req.Client.Update(req.Ctx, ingress)
-}
 
 func VaultSecretHandler(req router.Request, resp router.Response) error {
 	vaultsecret := req.Object.(*v1alpha1.VaultSecret)

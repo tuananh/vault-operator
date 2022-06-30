@@ -44,13 +44,11 @@ func Start(ctx context.Context) error {
 		}
 	}
 
-	sel := klabels.SelectorFromSet(map[string]string{
-		// ManagedByVaultOperator: "true",
-	})
+	// sel := klabels.SelectorFromSet(map[string]string{
+	// 	ManagedByVaultOperator: "true",
+	// })
 
-	// everythingSel := klabels.Everything()
-	// router.Type(&networkingv1.Ingress{}).Selector(sel).HandlerFunc(UpdateIngressWithAnnotation)
-	router.Type(&v1alpha1.VaultSecret{}).Selector(sel).HandlerFunc(VaultSecretHandler)
+	router.Type(&v1alpha1.VaultSecret{}).Selector(klabels.Everything()).HandlerFunc(VaultSecretHandler)
 
 	return router.Start(ctx)
 }
@@ -61,7 +59,6 @@ func newScheme() (*runtime.Scheme, error) {
 		scheme = runtime.NewScheme()
 	)
 
-	// errs = append(errs, networkingv1.AddToScheme(scheme))
 	errs = append(errs, v1alpha1.AddToScheme(scheme))
 	errs = append(errs, corev1.AddToScheme(scheme))
 	errs = append(errs, v1.AddToScheme(scheme))
