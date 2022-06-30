@@ -1,16 +1,24 @@
 build:
 	CGO_ENABLED=0 go build -o bin/vault-operator -ldflags "-s -w" .
 
+run: build
+	./bin/vault-operator
+		
 docker:
 	docker build -t tuananh/vault-operator .
-	
-generate:
-	go generate
+
+codegen: ## Generate code. Must be run if changes are made to ./pkg/apis/...
+	controller-gen \
+		object:headerFile="hack/boilerplate.go.txt" \
+		crd \
+		paths="./pkg/apis/..." \
+		output:crd:artifacts:config=config/crd
+	hack/boilerplate.sh
 
 validate:
 	golangci-lint --timeout 5m run
 
-validate-ci: generate
+validate-ci: codegen
 	go mod tidy
 	if [ -n "$$(git status --porcelain)" ]; then \
 		git status --porcelain; \
@@ -25,4 +33,4 @@ goreleaser:
 	goreleaser build --snapshot --single-target --rm-dist
 
 setup-ci-env:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.46.2
+	./hack/tools.sh
