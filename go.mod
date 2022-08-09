@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/compute v1.7.0
 	cloud.google.com/go/iam v0.3.0
 	github.com/acorn-io/baaah v0.0.0-20220629165638-91ce7be33b5f
-	github.com/aws/aws-sdk-go v1.44.69
+	github.com/aws/aws-sdk-go v1.44.71
 	github.com/go-task/slim-sprig v2.20.0+incompatible
 	github.com/leosayous21/go-azure-msi v0.0.0-20210509193526-19353bedcfc8
 	github.com/sirupsen/logrus v1.8.1
