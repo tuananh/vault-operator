@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.71
 	github.com/go-task/slim-sprig v2.20.0+incompatible
 	github.com/leosayous21/go-azure-msi v0.0.0-20210509193526-19353bedcfc8
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.0
 	google.golang.org/api v0.90.0
 	google.golang.org/genproto v0.0.0-20220628213854-d9e0b6570c03
 	k8s.io/api v0.24.3
@@ -103,7 +103,7 @@ require (
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	golang.org/x/oauth2 v0.0.0-20220628200809-02e64fa58f26
-	golang.org/x/sys v0.0.0-20220627191245-f75cf1eec38b // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
