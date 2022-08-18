@@ -3,15 +3,15 @@ module github.com/tuananh/vault-operator
 go 1.18
 
 require (
-	cloud.google.com/go/compute v1.7.0
+	cloud.google.com/go/compute v1.8.0
 	cloud.google.com/go/iam v0.3.0
 	github.com/acorn-io/baaah v0.0.0-20220629165638-91ce7be33b5f
 	github.com/aws/aws-sdk-go v1.44.77
 	github.com/go-task/slim-sprig v2.20.0+incompatible
 	github.com/leosayous21/go-azure-msi v0.0.0-20210509193526-19353bedcfc8
 	github.com/sirupsen/logrus v1.9.0
-	google.golang.org/api v0.90.0
-	google.golang.org/genproto v0.0.0-20220628213854-d9e0b6570c03
+	google.golang.org/api v0.91.0
+	google.golang.org/genproto v0.0.0-20220804142021-4e6b2dfa6612
 	k8s.io/api v0.24.3
 	k8s.io/apiextensions-apiserver v0.24.3
 	k8s.io/apimachinery v0.24.3
@@ -61,7 +61,7 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	google.golang.org/grpc v1.47.0 // indirect
+	google.golang.org/grpc v1.48.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 )
 
